@@ -42,6 +42,7 @@ def main():
         clock.tick(FPS)
 
         keys = pygame.key.get_pressed() #list of keys that are being pressed
+        isJumping = keys[pygame.K_SPACE]
         for event in pygame.event.get():
             # Quit game
             if event.type == pygame.KEYDOWN:
@@ -55,7 +56,6 @@ def main():
                 #if event.key == pygame.K_d:#move right
             
             #while rect_player.left >=0 and rect_player.right <= screenLength:
-            print(keys[pygame.K_d])
             if keys[pygame.K_d]:
                 rect_player.move_ip(stepSize,0)
                 #if event.key == pygame.K_a:#move left
@@ -66,30 +66,28 @@ def main():
                 #if event.key == pygame.K_a:#move left
             if keys[pygame.K_w]:
                 rect_player.move_ip(0,-stepSize)'''
-
+            if rect_player.collidelist(platforms) != -1:
+                isGrounded = True
+            elif rect_player.collidelist(platforms) == -1:
+                isGrounded= False
 
             #if isGrounded:
                 #if keys[ pygame.K_SPACE]:
                     #isJumping = True
                 #isFalling = False
-            while isGrounded:
-                if rect_player.collidelist(platforms) == -1:
-                    isFalling = True
-                    isGrounded = False
-                if keys[ pygame.K_SPACE]:
-                    isJumping = True
-                    isGrounded = False
+            if not isGrounded:
+                isFalling = True
             
-            while isFalling:
+            if isFalling:
+                if not isGrounded:
+                    fall(rect_player,10)
+                    
                 if rect_player.collidelist(platforms) != -1:
                     isGrounded = True
                     isFalling = False
-                fall(rect_player, 1)
             
-            while isJumping:#Player Jumping Mechanics
+            if isJumping:#Player Jumping Mechanics
                 jump(rect_player)
-                isFalling = True
-                isJumping = False
             '''
                 rect_player.move_ip(0,-10)
                 jumpCounter += 1
@@ -102,9 +100,6 @@ def main():
         
                      
 
-            
-        
-        #Setting boundaries
         if rect_player.left <= 0:
             rect_player.move_ip(stepSize,0)
         if rect_player.right >= screenLength:
@@ -125,14 +120,13 @@ def main():
         pygame.display.update()
 
 def jump(rect):
-    jumpCounter = 0
-    rect.move_ip(0,-10)
-    jumpCounter += 1
-    if jumpCounter == 10:
-        jumpCounter = 0
+    for jumpCounter in range(10):
+        rect.move_ip(0,-10)
+        jumpCounter += 1
+    
 
 def fall(rect,stepsizeY):
     rect.move_ip(0,stepsizeY)
 
-if __name__ == '__main__':   
+if __name__ ==  '__main__':
     main()
