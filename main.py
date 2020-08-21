@@ -21,13 +21,23 @@ def main():
     background = pygame.image.load(os.path.join("assets","background.jpg"))
     background = pygame.transform.scale(background, dim_field)
 
+    playerSprite = pygame.image.load(os.path.join("assets", "playerSprite.png")).convert()
+    playerSprite.set_colorkey((101, 141, 209))
+
+    flagSprite = pygame.image.load(os.path.join('assets','flagSprite.png'))
+    
+    flagSprite = pygame.transform.scale(flagSprite, (50,50))
+
     #----Player Mechanics----#
     
     # Location 1
     platforms = []
+    flagList = []
     rect_player = pygame.Rect(200, 200, 24, 26)
     rect_platform1 = pygame.Rect(200,250,300,5)
     rect_platform2 = pygame.Rect(200,180,300,5)
+    rect_flag = pygame.Rect(600,200,50,50)
+    flagList.append(rect_flag)
     platforms.append(rect_platform1)
     platforms.append(rect_platform2)
 
@@ -42,20 +52,24 @@ def main():
         clock.tick(FPS)
 
         keys = pygame.key.get_pressed() #list of keys that are being pressed
-        isJumping = keys[pygame.K_SPACE]
         for event in pygame.event.get():
             # Quit game
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     running = False
                     print("Quit game")
-                #isJumping
+                if isGrounded:
+                    if event.key == pygame.K_SPACE:
+                        isJumping = True
+                        print("yeet")
 
                 
                 #Horiz Mvmt
                 #if event.key == pygame.K_d:#move right
             
             #while rect_player.left >=0 and rect_player.right <= screenLength:
+
+            
             if keys[pygame.K_d]:
                 rect_player.move_ip(stepSize,0)
                 #if event.key == pygame.K_a:#move left
@@ -66,28 +80,26 @@ def main():
                 #if event.key == pygame.K_a:#move left
             if keys[pygame.K_w]:
                 rect_player.move_ip(0,-stepSize)'''
-            if rect_player.collidelist(platforms) != -1:
-                isGrounded = True
-            elif rect_player.collidelist(platforms) == -1:
-                isGrounded= False
+
 
             #if isGrounded:
                 #if keys[ pygame.K_SPACE]:
                     #isJumping = True
                 #isFalling = False
-            if not isGrounded:
-                isFalling = True
-            
+            if isGrounded:
+                if rect_player.collidelist(platforms) == -1:
+                    isFalling = True
+                    isGrounded = False
             if isFalling:
-                if not isGrounded:
-                    fall(rect_player,10)
-                    
+                fall(rect_player,6)
                 if rect_player.collidelist(platforms) != -1:
                     isGrounded = True
                     isFalling = False
             
             if isJumping:#Player Jumping Mechanics
                 jump(rect_player)
+                isFalling = True
+                isJumping = False
             '''
                 rect_player.move_ip(0,-10)
                 jumpCounter += 1
@@ -99,21 +111,29 @@ def main():
             '''
         
                      
-
+        
         if rect_player.left <= 0:
             rect_player.move_ip(stepSize,0)
         if rect_player.right >= screenLength:
             rect_player.move_ip(-stepSize,0)
         if rect_player.bottom >= screenHeight:
-            rect_player.move_ip(0,-1)
+            #rect_player.move_ip(0,-3)
+            jump(rect_player)
+            running = False
+            print("rip")
         if rect_player.top <= 0:
-            rect_player.move_ip(0,1)
+            rect_player.move_ip(0,3)
+        
 
-
-
+        if rect_player.colliderect(rect_flag): 
+            running = False
+            print("poggers")
 
         screen.blit(background, (0,0)) 
-        pygame.draw.rect(screen, (255,0,0), rect_player)
+        #pygame.draw.rect(screen, (255,0,0), rect_player)
+
+        screen.blit(playerSprite, rect_player)
+        screen.blit(flagSprite,rect_flag)
         
         for a in range(len(platforms)):
             pygame.draw.rect(screen, (255,255,0), platforms[a])
@@ -121,7 +141,7 @@ def main():
 
 def jump(rect):
     for jumpCounter in range(10):
-        rect.move_ip(0,-10)
+        rect.move_ip(0,-5)
         jumpCounter += 1
     
 
